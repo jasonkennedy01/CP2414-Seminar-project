@@ -19,7 +19,7 @@ def get_user_password():
     pass
 
 
-def convert_to_hash(text, salt):
+def generate_hash(text, salt):
     sha256 = hashlib.sha256()
     sha256.update((text + str(salt)).encode())
     return sha256.hexdigest()
