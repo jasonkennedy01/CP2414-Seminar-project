@@ -5,9 +5,7 @@ import hashlib
 import random
 import string
 
-MENU = (f"C)REATE ACCOUNT\n"
-        f"L)OGIN\n"
-        f"Q)UIT\n")
+MENU = f"C)REATE ACCOUNT\nL)OGIN\nQ)UIT\n"
 
 
 def main():
