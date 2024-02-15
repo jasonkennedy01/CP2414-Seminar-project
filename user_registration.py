@@ -21,9 +21,14 @@ def main():
 
 def create_account():
     username = input("Enter your username: ")
-    password = input("Enter your password: ")
-    while not is_valid_password(password):
+    generate_password = input("Generate password? Y/n\n>")
+    if generate_password in "Yy ":
+        password = generate_random_password()
+        print(f"Your password is: {password}")
+    else:
         password = input("Enter your password: ")
+        while not is_valid_password(password):
+            password = input("Enter your password: ")
     # save_to_file()
     print("Account created successfully!")
 
@@ -37,19 +42,6 @@ def login():
     # print failure
 
 
-def generate_random_password():
-    characters = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(random.choice(characters) for i in range(random.randint(8,20)))
-    valid = is_valid_password(password)
-    while valid:
-        password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
-        valid = is_valid_password(password)
-    return password
-
-
-print(generate_random_password())
-
-
 def is_valid_password(password):
     password_characters = list(password)
     lowercase_characters = [character for character in password_characters if character.islower()]
@@ -57,9 +49,20 @@ def is_valid_password(password):
     numbers = [character for character in password_characters if character.isnumeric()]
     symbols = string.punctuation
     symbol_characters = [character for character in password_characters if character in symbols]
-    while len(password_characters) < 8 or len(lowercase_characters) <= 0 or len(uppercase_characters) <= 0 or len(numbers) <= 0 or len(symbol_characters) <= 0:
+    while len(password_characters) < 8 or len(lowercase_characters) <= 0 or len(uppercase_characters) <= 0 or len(
+            numbers) <= 0 or len(symbol_characters) <= 0:
         return False
     return True
+
+
+def generate_random_password():
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
+    valid = is_valid_password(password)
+    while valid:
+        password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
+        valid = is_valid_password(password)
+    return password
 
 
 def generate_hash(text, salt):
@@ -82,6 +85,7 @@ def test():
     print("Alpha@02, 93849\t", generate_hash("Alpha@02", 93849))
     print("Alpha@02, 93849\t", generate_hash("Alpha@02", 93849))
     print("Alpha@02, generate_salt()\t", generate_hash("Alpha@02", generate_salt()))
+    print(generate_random_password())
 
 
 if __name__ == '__main__':
