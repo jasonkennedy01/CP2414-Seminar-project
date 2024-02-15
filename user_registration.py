@@ -31,7 +31,7 @@ def is_valid_password(password):
     numbers = [character for character in password_characters if character.isnumeric()]
     symbols = string.punctuation
     symbol_characters = [character for character in password_characters if character in symbols]
-    while len(password_characters) < 8 and len(lowercase_characters) <= 0 and len(uppercase_characters) <= 0 and len(numbers) <= 0 and len(symbol_characters) <= 0:
+    while len(password_characters) < 8 or len(lowercase_characters) <= 0 or len(uppercase_characters) <= 0 or len(numbers) <= 0 or len(symbol_characters) <= 0:
         return False
     return True
 
