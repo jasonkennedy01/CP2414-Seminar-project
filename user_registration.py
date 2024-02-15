@@ -9,7 +9,11 @@ def main():
 
 def generate_random_password():
     characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for i in range(random.randint(8,20)))
 
+
+
+    return password
 
 def get_user_password():
     pass
@@ -24,3 +28,4 @@ def save_to_file():
 
 
 # main()
+print(generate_random_password())
