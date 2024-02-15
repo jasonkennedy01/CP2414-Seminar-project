@@ -15,14 +15,16 @@ def generate_random_password():
     characters = string.ascii_letters + string.digits + string.punctuation
 
 
-def get_user_password(password):
+def is_valid_password(password):
     password_characters = list(password)
     lowercase_characters = [character for character in password_characters if character.islower()]
     uppercase_characters = [character for character in password_characters if character.isupper()]
     numbers = [number for number in password_characters if number.isnumeric()]
-
-    while len(password_characters) < 8 and len(lowercase_characters) <= 0 and len(numbers) <= 0 :
-        print("Invalid Password: Too short")
+    symbols = string.punctuation
+    symbol_characters = [character for character in password_characters if character in symbols]
+    while len(password_characters) < 8 and len(lowercase_characters) <= 0 and len(uppercase_characters) <= 0 and len(numbers) <= 0 and len(symbol_characters) <= 0:
+        return False
+    return True
 
 
 def convert_to_hash(text, salt):
