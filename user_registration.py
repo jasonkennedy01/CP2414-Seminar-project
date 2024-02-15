@@ -3,25 +3,53 @@ entry and converting to a hash code."""
 
 import hashlib
 import random
-
-import random
 import string
 
+MENU = (f"C)REATE ACCOUNT\n"
+        f"L)OGIN\n"
+        f"Q)UIT\n")
+
+
 def main():
-    pass
+    print(MENU)
+    choice = input(">").upper()
+    while choice != "Q":
+        if choice == "C":
+            create_account()
+        if choice == "L":
+            login()
+        choice = input(">").upper()
+
+
+def create_account():
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
+    while not is_valid_password(password):
+        password = input("Enter your password: ")
+    # save_to_file()
+    print("Account created successfully!")
+
+
+def login():
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
+    # check username exists
+    # check password against username
+    # print success
+    # print failure
 
 
 def generate_random_password():
     characters = string.ascii_letters + string.digits + string.punctuation
 
 
-def get_user_password(password):
+def is_valid_password(password):
     password_characters = list(password)
     lowercase_characters = [character for character in password_characters if character.islower()]
     uppercase_characters = [character for character in password_characters if character.isupper()]
     numbers = [number for number in password_characters if number.isnumeric()]
 
-    while len(password_characters) < 8 and len(lowercase_characters) <= 0 and len(numbers) <= 0 :
+    while len(password_characters) < 8 and len(lowercase_characters) <= 0 and len(numbers) <= 0:
         print("Invalid Password: Too short")
 
 
@@ -48,5 +76,5 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    # test()
     main()
