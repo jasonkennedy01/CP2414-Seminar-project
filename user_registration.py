@@ -13,6 +13,15 @@ def main():
 
 def generate_random_password():
     characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for i in range(random.randint(8,20)))
+    valid = is_valid_password(password)
+    while valid:
+        password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
+        valid = is_valid_password(password)
+    return password
+
+
+print(generate_random_password())
 
 
 def is_valid_password(password):
@@ -49,6 +58,6 @@ def test():
     print("Alpha@02, generate_salt()\t", generate_hash("Alpha@02", generate_salt()))
 
 
-if __name__ == '__main__':
-    test()
-    main()
+# if __name__ == '__main__':
+#     test()
+#     main()
