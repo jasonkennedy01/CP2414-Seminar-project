@@ -1,5 +1,9 @@
 """Program to accept users registration using a computer generated password or user
 entry and converting to a hash code."""
+
+import hashlib
+import random
+
 import random
 import string
 
@@ -9,23 +13,42 @@ def main():
 
 def generate_random_password():
     characters = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(random.choice(characters) for i in range(random.randint(8,20)))
 
 
+def is_valid_password(password):
+    password_characters = list(password)
+    lowercase_characters = [character for character in password_characters if character.islower()]
+    uppercase_characters = [character for character in password_characters if character.isupper()]
+    numbers = [character for character in password_characters if character.isnumeric()]
+    symbols = string.punctuation
+    symbol_characters = [character for character in password_characters if character in symbols]
+    while len(password_characters) < 8 and len(lowercase_characters) <= 0 and len(uppercase_characters) <= 0 and len(numbers) <= 0 and len(symbol_characters) <= 0:
+        return False
+    return True
 
-    return password
 
-def get_user_password():
-    pass
-
-
-def convert_to_hash():
-    pass
+def generate_hash(text, salt):
+    sha256 = hashlib.sha256()
+    sha256.update((text + str(salt)).encode())
+    return sha256.hexdigest()
 
 
 def save_to_file():
     pass
 
 
-# main()
-print(generate_random_password())
+def generate_salt():
+    return random.uniform(1_000, 100_000_000)
+
+
+def test():
+    print("Alpha@01, 12834\t", generate_hash("Alpha@01", 12834))
+    print("Alpha@01, 93834\t", generate_hash("Alpha@01", 93834))
+    print("Alpha@02, 93849\t", generate_hash("Alpha@02", 93849))
+    print("Alpha@02, 93849\t", generate_hash("Alpha@02", 93849))
+    print("Alpha@02, generate_salt()\t", generate_hash("Alpha@02", generate_salt()))
+
+
+if __name__ == '__main__':
+    test()
+    main()
