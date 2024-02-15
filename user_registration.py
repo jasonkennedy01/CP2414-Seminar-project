@@ -4,13 +4,15 @@ entry and converting to a hash code."""
 import hashlib
 import random
 
+import random
+import string
 
 def main():
     pass
 
 
 def generate_random_password():
-    pass
+    characters = string.ascii_letters + string.digits + string.punctuation
 
 
 def get_user_password():
