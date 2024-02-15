@@ -40,11 +40,11 @@ def generate_salt():
 
 
 def test():
-    print("Alpha@01, 12834\t", convert_to_hash("Alpha@01", 12834))
-    print("Alpha@01, 93834\t", convert_to_hash("Alpha@01", 93834))
-    print("Alpha@02, 93849\t", convert_to_hash("Alpha@02", 93849))
-    print("Alpha@02, 93849\t", convert_to_hash("Alpha@02", 93849))
-    print("Alpha@02, generate_salt()\t", convert_to_hash("Alpha@02", generate_salt()))
+    print("Alpha@01, 12834\t", generate_hash("Alpha@01", 12834))
+    print("Alpha@01, 93834\t", generate_hash("Alpha@01", 93834))
+    print("Alpha@02, 93849\t", generate_hash("Alpha@02", 93849))
+    print("Alpha@02, 93849\t", generate_hash("Alpha@02", 93849))
+    print("Alpha@02, generate_salt()\t", generate_hash("Alpha@02", generate_salt()))
 
 
 if __name__ == '__main__':
