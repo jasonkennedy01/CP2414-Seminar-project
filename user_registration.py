@@ -4,6 +4,8 @@ entry and converting to a hash code.
 """
 import hashlib
 import random
+import re
+import string
 
 MENU_STRING = "C)reate Account\nL)ogin\nQ)uit"
 
@@ -27,11 +29,18 @@ def main():
 def create_account(accounts):
     """Add new account to accounts list."""
     username = input("Enter a username: ")
-    password = input("Enter a password: ")
-    while not is_valid_password(password):
-        print("Password must contain")
-        print("Lower case + Upper case + numbers + symbols + at least 8 characters")
+
+    choice = input("Generate random password? Y/n\n>").upper()
+    if choice == 'N':
         password = input("Enter a password: ")
+        while not is_valid_password(password):
+            print("Password must contain")
+            print("Lower case + Upper case + numbers + symbols + at least 8 characters")
+            password = input("Enter a password: ")
+    else:
+        password = generate_random_password()
+        print(password)
+
     accounts[username] = hash_password(password)
     print(accounts)
 
@@ -46,7 +55,10 @@ def hash_password(password, salt=None):
 
 def is_valid_password(text):
     """Check if text is valid password."""
-    return True
+    password_regex_pattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
+    if re.match(password_regex_pattern, text):
+        return True
+    return False
 
 
 def load_accounts_from_file(filename):
@@ -78,6 +90,17 @@ def login(accounts):
         print("Logged in successfully")
     else:
         print("Incorrect password!!!")
+
+
+def generate_random_password():
+    """Generate a random password."""
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
+    valid = is_valid_password(password)
+    while not valid:
+        password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
+        valid = is_valid_password(password)
+    return password
 
 
 if __name__ == '__main__':
