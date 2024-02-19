@@ -1,93 +1,84 @@
-"""Program to accept users registration using a computer generated password or user
-entry and converting to a hash code."""
-
+"""
+Program to accept users registration using a computer generated password or user
+entry and converting to a hash code.
+"""
 import hashlib
 import random
-import string
 
-MENU = f"C)REATE ACCOUNT\nL)OGIN\nQ)UIT\n"
+MENU_STRING = "C)reate Account\nL)ogin\nQ)uit"
 
 
 def main():
-    print(MENU)
+    """Display the menu and accept user input."""
+    accounts = load_accounts_from_file("accounts.txt")
+
+    print(MENU_STRING)
     choice = input(">").upper()
     while choice != "Q":
         if choice == "C":
-            create_account()
+            create_account(accounts)
         if choice == "L":
-            login()
+            login(accounts)
+        print(MENU_STRING)
         choice = input(">").upper()
+    save_accounts_to_file("accounts.txt", accounts)
 
 
-def create_account():
-    username = input("Enter your username: ")
-    generate_password = input("Generate password? Y/n\n>")
-    if generate_password in "Yy ":
-        password = generate_random_password()
-        print(f"Your password is: {password}")
-    else:
-        password = input("Enter your password: ")
-        while not is_valid_password(password):
-            password = input("Enter your password: ")
-    # save_to_file()
-    print("Account created successfully!")
+def create_account(accounts):
+    """Add new account to accounts list."""
+    username = input("Enter a username: ")
+    password = input("Enter a password: ")
+    while not is_valid_password(password):
+        print("Password must contain")
+        print("Lower case + Upper case + numbers + symbols + at least 8 characters")
+        password = input("Enter a password: ")
+    accounts[username] = hash_password(password)
+    print(accounts)
 
 
-def login():
-    username = input("Enter your username: ")
-    password = input("Enter your password: ")
-    # check username exists
-    # check password against username
-    # print success
-    # print failure
+def hash_password(password, salt=None):
+    """Hash a password."""
+    if salt is None:
+        salt = str(random.uniform(100_000, 100_000_000))
+    hashed_password = hashlib.sha256((password + salt).encode()).hexdigest()
+    return hashed_password, salt
 
 
-def is_valid_password(password):
-    password_characters = list(password)
-    lowercase_characters = [character for character in password_characters if character.islower()]
-    uppercase_characters = [character for character in password_characters if character.isupper()]
-    numbers = [character for character in password_characters if character.isnumeric()]
-    symbols = string.punctuation
-    symbol_characters = [character for character in password_characters if character in symbols]
-    while len(password_characters) < 8 or len(lowercase_characters) <= 0 or len(uppercase_characters) <= 0 or len(
-            numbers) <= 0 or len(symbol_characters) <= 0:
-        return False
+def is_valid_password(text):
+    """Check if text is valid password."""
     return True
 
 
-def generate_random_password():
-    characters = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
-    valid = is_valid_password(password)
-    while valid:
-        password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
-        valid = is_valid_password(password)
-    return password
+def load_accounts_from_file(filename):
+    """Load accounts from file."""
+    accounts = {}
+    with open(filename, 'r', encoding='utf-8') as in_file:
+        for line in in_file:
+            items = line.split()
+            accounts[items[0]] = (items[1], items[2])
+    return accounts
 
 
-def generate_hash(text, salt):
-    sha256 = hashlib.sha256()
-    sha256.update((text + str(salt)).encode())
-    return sha256.hexdigest()
+def save_accounts_to_file(filename, accounts):
+    """Save accounts to file."""
+    with open(filename, 'w', encoding='utf-8') as out_file:
+        for account in accounts:
+            out_file.write(f"{account} {accounts[account][0]} {accounts[account][1]}\n")
 
 
-def save_to_file():
-    pass
-
-
-def generate_salt():
-    return random.uniform(1_000, 100_000_000)
-
-
-def test():
-    print("Alpha@01, 12834\t", generate_hash("Alpha@01", 12834))
-    print("Alpha@01, 93834\t", generate_hash("Alpha@01", 93834))
-    print("Alpha@02, 93849\t", generate_hash("Alpha@02", 93849))
-    print("Alpha@02, 93849\t", generate_hash("Alpha@02", 93849))
-    print("Alpha@02, generate_salt()\t", generate_hash("Alpha@02", generate_salt()))
-    print(generate_random_password())
+def login(accounts):
+    """Check username and password for valid credentials."""
+    username = input("Username: ")
+    if username not in accounts.keys():
+        print("Account does not exist")
+        return
+    password = input("Password: ")
+    hashed_password, salt = accounts[username]
+    if hash_password(password, salt)[0] == hashed_password:
+        print("Logged in successfully")
+    else:
+        print("Incorrect password!!!")
 
 
 if __name__ == '__main__':
-    # test()
     main()
