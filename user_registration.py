@@ -56,9 +56,7 @@ def hash_password(password, salt=None):
 def is_valid_password(text):
     """Check if text is valid password."""
     password_regex_pattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
-    if re.match(password_regex_pattern, text):
-        return True
-    return False
+    return re.match(password_regex_pattern, text)
 
 
 def load_accounts_from_file(filename):
