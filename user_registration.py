@@ -6,6 +6,7 @@ import hashlib
 import random
 import re
 import string
+from Crypto.Cipher import DES
 
 MENU_STRING = "C)reate Account\nL)ogin\nQ)uit"
 
@@ -51,6 +52,24 @@ def hash_password(password, salt=None):
         salt = str(random.uniform(100_000, 100_000_000))
     hashed_password = hashlib.sha256((password + salt).encode()).hexdigest()
     return hashed_password, salt
+
+
+def encrypt_des(key, plaintext):
+    des = DES.new(key.encode('utf-8'), DES.MODE_ECB)
+    padded_text = pad(plaintext.encode('utf-8'))
+    encrypted_text = des.encrypt(padded_text)
+    return encrypted_text
+
+
+def decrypt_des(key, encrypted_text):
+    des = DES.new(pad(key.encode('utf-8')), DES.MODE_ECB)
+    plaintext = des.decrypt(encrypted_text)
+    return plaintext
+
+
+def pad(text):
+    n = len(text) % 8
+    return text + (b' ' * n)
 
 
 def is_valid_password(text):
@@ -102,4 +121,6 @@ def generate_random_password():
 
 
 if __name__ == '__main__':
-    main()
+    abc = encrypt_des("test9w28", "test")
+    print(abc)
+    # main()
