@@ -28,7 +28,9 @@ def main():
             login(accounts)
         print(MENU_STRING)
         choice = input(">").upper()
+    print("Saving...")
     save_accounts_to_file("accounts.txt", accounts)
+    print("Saved.")
 
 
 def create_account(accounts):
