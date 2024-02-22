@@ -13,7 +13,11 @@ MENU_STRING = "C)reate Account\nL)ogin\nQ)uit"
 
 def main():
     """Display the menu and accept user input."""
-    accounts = load_accounts_from_file("accounts.txt")
+    try:
+        accounts = load_accounts_from_file("accounts.txt")
+    except FileNotFoundError:
+        print("Accounts file not found...")
+        accounts = {}
 
     print(MENU_STRING)
     choice = input(">").upper()
