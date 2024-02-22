@@ -125,15 +125,11 @@ def decrypt_caesar_cipher(password, key):
         initial_index = characters.index(character)
         new_index = initial_index - key
         if new_index < 0:
-            new_index = (length_of_characters - 1) - (new_index - initial_index)
+            new_index = length_of_characters - (key - initial_index)
         password_characters[character_position] = characters[new_index]
     password_cypher = "".join(password_characters)
     return password_cypher
 
 
-encrypted = encrypt_caesar_cipher("Password#$%123", 50)
-print(encrypted, decrypt_caesar_cipher(encrypted, 50))
-
-
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
