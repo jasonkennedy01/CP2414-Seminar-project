@@ -55,20 +55,23 @@ def hash_password(password, salt=None):
 
 
 def encrypt_des(key, plaintext):
-    des = DES.new(key.encode('utf-8'), DES.MODE_ECB)
-    padded_text = pad(plaintext.encode('utf-8'))
+    """Encrypt text using DES encryption."""
+    des = DES.new(key.encode('utf-8').strip(), DES.MODE_ECB)
+    padded_text = pad_text(plaintext.encode('utf-8').strip())
     encrypted_text = des.encrypt(padded_text)
     return encrypted_text
 
 
 def decrypt_des(key, encrypted_text):
-    des = DES.new(pad(key.encode('utf-8')), DES.MODE_ECB)
+    """Decrypt text using DES encryption."""
+    des = DES.new(pad_text(key.encode('utf-8')), DES.MODE_ECB)
     plaintext = des.decrypt(encrypted_text)
-    return plaintext
+    return plaintext.decode('utf-8').strip()
 
 
-def pad(text):
-    n = len(text) % 8
+def pad_text(text, block_size=8):
+    """Add padding to end of the text to ensure it is in 8 Byte blocks."""
+    n = len(text) % block_size
     return text + (b' ' * n)
 
 
@@ -149,6 +152,4 @@ def decrypt_caesar_cipher(password, key):
 
 
 if __name__ == '__main__':
-    abc = encrypt_des("test9w28", "test")
-    print(abc)
-    # main()
+    main()
