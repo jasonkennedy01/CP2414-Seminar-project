@@ -103,5 +103,23 @@ def generate_random_password():
     return password
 
 
-if __name__ == '__main__':
-    main()
+def encrypt_caesar_cipher(password):
+    characters = list(string.ascii_letters + string.digits + string.punctuation)
+    length_of_characters = len(characters)
+    random_number = (random.randint(0, length_of_characters))
+    password_characters = list(password)
+    for character_position, character in enumerate(password_characters):
+        initial_index = characters.index(character)
+        new_index = initial_index + random_number
+        if new_index > length_of_characters - 1:
+            new_index = 0 + (new_index - length_of_characters)
+        password_characters[character_position] = characters[new_index]
+    password_cypher = "".join(password_characters)
+    return password_cypher, random_number
+
+
+print(encrypt_caesar_cipher("Password#$%123"))
+
+
+# if __name__ == '__main__':
+#     main()
