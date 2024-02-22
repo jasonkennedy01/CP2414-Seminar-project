@@ -120,6 +120,34 @@ def generate_random_password():
     return password
 
 
+def encrypt_caesar_cipher(password, key):
+    characters = list(string.ascii_letters + string.digits + string.punctuation)
+    length_of_characters = len(characters)
+    password_characters = list(password)
+    for character_position, character in enumerate(password_characters):
+        initial_index = characters.index(character)
+        new_index = initial_index + key
+        if new_index > length_of_characters - 1:
+            new_index = 0 + (new_index - length_of_characters)
+        password_characters[character_position] = characters[new_index]
+    password_cypher = "".join(password_characters)
+    return password_cypher
+
+
+def decrypt_caesar_cipher(password, key):
+    characters = list(string.ascii_letters + string.digits + string.punctuation)
+    length_of_characters = len(characters)
+    password_characters = list(password)
+    for character_position, character in enumerate(password_characters):
+        initial_index = characters.index(character)
+        new_index = initial_index - key
+        if new_index < 0:
+            new_index = length_of_characters - (key - initial_index)
+        password_characters[character_position] = characters[new_index]
+    password_cypher = "".join(password_characters)
+    return password_cypher
+
+
 if __name__ == '__main__':
     abc = encrypt_des("test9w28", "test")
     print(abc)
