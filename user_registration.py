@@ -103,22 +103,36 @@ def generate_random_password():
     return password
 
 
-def encrypt_caesar_cipher(password):
+def encrypt_caesar_cipher(password, key):
     characters = list(string.ascii_letters + string.digits + string.punctuation)
     length_of_characters = len(characters)
-    random_number = (random.randint(0, length_of_characters))
     password_characters = list(password)
     for character_position, character in enumerate(password_characters):
         initial_index = characters.index(character)
-        new_index = initial_index + random_number
+        new_index = initial_index + key
         if new_index > length_of_characters - 1:
             new_index = 0 + (new_index - length_of_characters)
         password_characters[character_position] = characters[new_index]
     password_cypher = "".join(password_characters)
-    return password_cypher, random_number
+    return password_cypher
 
 
-print(encrypt_caesar_cipher("Password#$%123"))
+def decrypt_caesar_cipher(password, key):
+    characters = list(string.ascii_letters + string.digits + string.punctuation)
+    length_of_characters = len(characters)
+    password_characters = list(password)
+    for character_position, character in enumerate(password_characters):
+        initial_index = characters.index(character)
+        new_index = initial_index - key
+        if new_index < 0:
+            new_index = (length_of_characters - 1) - (new_index - initial_index)
+        password_characters[character_position] = characters[new_index]
+    password_cypher = "".join(password_characters)
+    return password_cypher
+
+
+encrypted = encrypt_caesar_cipher("Password#$%123", 50)
+print(encrypted, decrypt_caesar_cipher(encrypted, 50))
 
 
 # if __name__ == '__main__':
