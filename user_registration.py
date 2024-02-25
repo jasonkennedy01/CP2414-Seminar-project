@@ -7,8 +7,12 @@ import random
 import re
 import string
 from Crypto.Cipher import DES
+from account import Account
 
 MENU_STRING = "C)reate Account\nL)ogin\nQ)uit"
+# To-Do: Load keys from file and generate on first run
+DES_KEY = 'aCP2414a'
+CAESER_KEY = 'CP2414'
 
 
 def main():
@@ -17,7 +21,7 @@ def main():
         accounts = load_accounts_from_file("accounts.txt")
     except FileNotFoundError:
         print("Accounts file not found...")
-        accounts = {}
+        accounts = []
 
     print(MENU_STRING)
     choice = input(">").upper()
@@ -28,6 +32,7 @@ def main():
             login(accounts)
         print(MENU_STRING)
         choice = input(">").upper()
+
     print("Saving...")
     save_accounts_to_file("accounts.txt", accounts)
     print("Saved.")
@@ -48,8 +53,27 @@ def create_account(accounts):
         password = generate_random_password()
         print(password)
 
-    accounts[username] = hash_password(password)
+    print("How would you like to store your password?")
+    encryption_method_choice = input("H)ash\nC)aeser\nD)ES").upper()
+    while encryption_method_choice not in 'HCD':
+        print("How would you like to store your password?")
+        encryption_method_choice = input("H)ash\nC)aeser\nD)ES").upper()
+    encryption_method = encryption_method_choice
+
+    encrypted_password = encrypt_password(password, encryption_method)
+    accounts.append(Account(username, encrypted_password, encryption_method))
     print(accounts)
+
+
+def encrypt_password(password, encryption_method='H'):
+    """Return an encrypted password based on a provided encryption method."""
+    if encryption_method == 'H':
+        return hash_password(password)
+    if encryption_method == 'C':
+        return encrypt_caesar_cipher(password, CAESER_KEY)
+    if encryption_method == 'D':
+        return encrypt_des(DES_KEY, password)
+    return None
 
 
 def hash_password(password, salt=None):
@@ -62,8 +86,8 @@ def hash_password(password, salt=None):
 
 def encrypt_des(key, plaintext):
     """Encrypt text using DES encryption."""
-    des = DES.new(key.encode('utf-8').strip(), DES.MODE_ECB)
-    padded_text = pad_text(plaintext.encode('utf-8').strip())
+    des = DES.new(key.encode(), DES.MODE_ECB)
+    padded_text = pad_text(plaintext.encode())
     encrypted_text = des.encrypt(padded_text)
     return encrypted_text
 
@@ -76,9 +100,9 @@ def decrypt_des(key, encrypted_text):
 
 
 def pad_text(text, block_size=8):
-    """Add padding to end of the text to ensure it is in 8 Byte blocks."""
+    """Add padding to end of the text."""
     n = len(text) % block_size
-    return text + (b' ' * n)
+    return text + (b' ' * (block_size - n))
 
 
 def is_valid_password(text):
@@ -130,6 +154,7 @@ def generate_random_password():
 
 
 def encrypt_caesar_cipher(password, key):
+    """Method is still broken"""
     characters = list(string.ascii_letters + string.digits + string.punctuation)
     length_of_characters = len(characters)
     password_characters = list(password)
@@ -158,4 +183,5 @@ def decrypt_caesar_cipher(password, key):
 
 
 if __name__ == '__main__':
+    print(encrypt_des(DES_KEY, 'a'))
     main()
