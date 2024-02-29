@@ -171,13 +171,13 @@ def compare_passwords(input_password, stored_password, encryption_method):
     return False
 
 
-def generate_random_password():
+def generate_random_password(min_length=8, max_length=20):
     """Generate a random password."""
     characters = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(random.choice(characters) for i in range(8))
+    password = ''.join(random.choice(characters) for i in range(min_length, max_length))
     valid = is_valid_password(password)
     while not valid:
-        password = ''.join(random.choice(characters) for i in range(8))
+        password = ''.join(random.choice(characters) for i in range(min_length, max_length))
         valid = is_valid_password(password)
     return password
 
