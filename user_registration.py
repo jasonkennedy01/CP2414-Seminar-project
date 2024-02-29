@@ -137,7 +137,7 @@ def load_accounts_from_file(filename):
 def create_keys_file(filename):
     """Create keys."""
     with open(filename, 'w') as out_file:
-        out_file.write(generate_random_password() + '\n')  # DES KEY, generate password returns a block of 8 chars
+        out_file.write(generate_random_password(max_length=8) + '\n')  # DES KEY, generate password returns a block of 8 chars
         out_file.write(str(random.randint(0, 26)))  # CAESER KEY
 
 
