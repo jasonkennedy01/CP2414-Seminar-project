@@ -6,6 +6,7 @@ import hashlib
 import random
 import re
 import string
+import secrets
 from Crypto.Cipher import DES
 
 MENU_STRING = "C)reate Account\nL)ogin\nQ)uit"
@@ -155,6 +156,20 @@ def decrypt_caesar_cipher(password, key):
         password_characters[character_position] = characters[new_index]
     password_cypher = "".join(password_characters)
     return password_cypher
+
+
+def generate_secret_value(length):
+    """Generate a random secret value of given length"""
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+
+def secret_hash(message, secret_value):
+    """Hash a secret value with a message using sha512."""
+    message_hash = hashlib.sha512(message.encode()).digest()
+    combined = secret_value + message_hash
+    final_hash = hashlib.sha512(combined).hexdigest()
+    return final_hash
 
 
 if __name__ == '__main__':
