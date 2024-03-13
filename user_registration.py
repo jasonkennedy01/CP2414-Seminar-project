@@ -3,11 +3,21 @@ Program to accept users registration using a computer generated password or user
 entry and converting to a hash code.
 """
 import hashlib
+import json
 import random
 import re
 import string
+<<<<<<< HEAD
 import secrets
+=======
+from types import SimpleNamespace
+
+>>>>>>> 96bce5f903ef99e9b3a5eea7730feb468fa67632
 from Crypto.Cipher import DES
+from account import Account
+
+ACCOUNT_FILENAME = "accounts.json"
+KEYS_FILENAME = "secrets.txt"
 
 MENU_STRING = "C)reate Account\nL)ogin\nQ)uit"
 
@@ -15,10 +25,10 @@ MENU_STRING = "C)reate Account\nL)ogin\nQ)uit"
 def main():
     """Display the menu and accept user input."""
     try:
-        accounts = load_accounts_from_file("accounts.txt")
+        accounts = load_accounts_from_file(ACCOUNT_FILENAME)
     except FileNotFoundError:
         print("Accounts file not found...")
-        accounts = {}
+        accounts = []
 
     print(MENU_STRING)
     choice = input(">").upper()
@@ -26,11 +36,13 @@ def main():
         if choice == "C":
             create_account(accounts)
         if choice == "L":
-            login(accounts)
+            success = login(accounts)
+            print(f"Login {success}.")
         print(MENU_STRING)
         choice = input(">").upper()
+
     print("Saving...")
-    save_accounts_to_file("accounts.txt", accounts)
+    save_accounts_to_file(ACCOUNT_FILENAME, accounts)
     print("Saved.")
 
 
@@ -49,8 +61,38 @@ def create_account(accounts):
         password = generate_random_password()
         print(password)
 
-    accounts[username] = hash_password(password)
+    print("How would you like to store your password?")
+    encryption_method_choice = input("H)ash\nC)aeser\nD)ES\n>").upper()
+    while encryption_method_choice not in 'HCD':
+        print("How would you like to store your password?")
+        encryption_method_choice = input("H)ash\nC)aeser\nD)ES\n>").upper()
+    encryption_method = encryption_method_choice
+
+    encrypted_password = encrypt_password(password, encryption_method)
+    accounts.append(Account(username, encrypted_password, encryption_method))
     print(accounts)
+
+
+def encrypt_password(password, encryption_method='H'):
+    """Return an encrypted password based on a provided encryption method."""
+    if encryption_method == 'H':
+        return hash_password(password)
+    if encryption_method == 'C':
+        return encrypt_caesar_cipher(password, int(CAESER_KEY))
+    if encryption_method == 'D':
+        return encrypt_des(DES_KEY, password)
+    return None
+
+
+def decrypt_password(password, encryption_method='H'):
+    """Return a decrypted password based on a provided encryption method."""
+    if encryption_method == 'H':
+        return hash_password(password)
+    if encryption_method == 'C':
+        return encrypt_caesar_cipher(password, int(CAESER_KEY))
+    if encryption_method == 'D':
+        return encrypt_des(DES_KEY, password)
+    return None
 
 
 def hash_password(password, salt=None):
@@ -63,8 +105,8 @@ def hash_password(password, salt=None):
 
 def encrypt_des(key, plaintext):
     """Encrypt text using DES encryption."""
-    des = DES.new(key.encode('utf-8').strip(), DES.MODE_ECB)
-    padded_text = pad_text(plaintext.encode('utf-8').strip())
+    des = DES.new(key.encode('ascii'), DES.MODE_ECB)
+    padded_text = pad_text(plaintext.encode())
     encrypted_text = des.encrypt(padded_text)
     return encrypted_text
 
@@ -77,9 +119,9 @@ def decrypt_des(key, encrypted_text):
 
 
 def pad_text(text, block_size=8):
-    """Add padding to end of the text to ensure it is in 8 Byte blocks."""
+    """Add padding to end of the text."""
     n = len(text) % block_size
-    return text + (b' ' * n)
+    return text + (b' ' * (block_size - n))
 
 
 def is_valid_password(text):
@@ -90,47 +132,62 @@ def is_valid_password(text):
 
 def load_accounts_from_file(filename):
     """Load accounts from file."""
-    accounts = {}
-    with open(filename, 'r', encoding='utf-8') as in_file:
-        for line in in_file:
-            items = line.split()
-            accounts[items[0]] = (items[1], items[2])
+    accounts = []
+    with open(filename, 'rb') as in_file:
+        accounts = json.load(in_file, object_hook=lambda x: SimpleNamespace(**x))
     return accounts
+
+
+def create_keys_file(filename):
+    """Create keys."""
+    with open(filename, 'w') as out_file:
+        out_file.write(generate_random_password(max_length=8) + '\n')  # DES KEY, generate password returns a block of 8 chars
+        out_file.write(str(random.randint(0, 26)))  # CAESER KEY
 
 
 def save_accounts_to_file(filename, accounts):
     """Save accounts to file."""
-    with open(filename, 'w', encoding='utf-8') as out_file:
-        for account in accounts:
-            out_file.write(f"{account} {accounts[account][0]} {accounts[account][1]}\n")
+    with open(filename, 'w') as out_file:
+        out_file.write(json.dumps(accounts, default=vars))
 
 
 def login(accounts):
     """Check username and password for valid credentials."""
     username = input("Username: ")
-    if username not in accounts.keys():
-        print("Account does not exist")
-        return
-    password = input("Password: ")
-    hashed_password, salt = accounts[username]
-    if hash_password(password, salt)[0] == hashed_password:
-        print("Logged in successfully")
-    else:
-        print("Incorrect password!!!")
+    for account in accounts:
+        if account.username == username:
+            password = input("Password: ")
+            return compare_passwords(password, account.password, account.encryption_method)
+    print("Account not found!")
+    return False
 
 
-def generate_random_password():
+def compare_passwords(input_password, stored_password, encryption_method):
+    """Compare the given password and stored password."""
+    if encryption_method == 'H':
+        print(hash_password(input_password, stored_password[1]))
+        print(stored_password[0])
+        return hash_password(input_password, stored_password[1])[0] == stored_password[0]
+    if encryption_method == 'C':
+        return encrypt_caesar_cipher(input_password, int(CAESER_KEY)) == stored_password
+    if encryption_method == 'D':
+        return encrypt_des(DES_KEY, input_password) == stored_password
+    return False
+
+
+def generate_random_password(min_length=8, max_length=20):
     """Generate a random password."""
     characters = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
+    password = ''.join(random.choice(characters) for i in range(min_length, max_length))
     valid = is_valid_password(password)
     while not valid:
-        password = ''.join(random.choice(characters) for i in range(random.randint(8, 20)))
+        password = ''.join(random.choice(characters) for i in range(min_length, max_length))
         valid = is_valid_password(password)
     return password
 
 
 def encrypt_caesar_cipher(password, key):
+    """Encrypt text based on a caeser rotation."""
     characters = list(string.ascii_letters + string.digits + string.punctuation)
     length_of_characters = len(characters)
     password_characters = list(password)
@@ -145,6 +202,7 @@ def encrypt_caesar_cipher(password, key):
 
 
 def decrypt_caesar_cipher(password, key):
+    """Decrypt text based on a caeser rotation."""
     characters = list(string.ascii_letters + string.digits + string.punctuation)
     length_of_characters = len(characters)
     password_characters = list(password)
@@ -158,19 +216,30 @@ def decrypt_caesar_cipher(password, key):
     return password_cypher
 
 
+<<<<<<< HEAD
 def generate_secret_value(length):
     """Generate a random secret value of given length"""
     alphabet = string.ascii_letters + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 
-def secret_hash(message, secret_value):
-    """Hash a secret value with a message using sha512."""
-    message_hash = hashlib.sha512(message.encode()).digest()
-    combined = secret_value + message_hash
-    final_hash = hashlib.sha512(combined).hexdigest()
-    return final_hash
 
+
+=======
+def load_keys_from_file(filename):
+    try:
+        with open(filename, 'r', encoding='ascii') as in_file:
+            keys = in_file.readlines()
+            for i in range(len(keys)):
+                keys[i] = keys[i].strip()
+        return keys
+    except FileNotFoundError:
+        create_keys_file(filename)
+    return load_keys_from_file(filename)
+
+
+DES_KEY, CAESER_KEY = load_keys_from_file(KEYS_FILENAME)
+>>>>>>> 96bce5f903ef99e9b3a5eea7730feb468fa67632
 
 if __name__ == '__main__':
     main()
